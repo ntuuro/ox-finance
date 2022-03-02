@@ -3,7 +3,7 @@ const axios = require("axios");
 
 exports.getExternalReport = (req, res) => {
   // Get file and tab to read
-  let file = "./recon.xlsx";
+  let file = `${req.body.data}`;
   readXlsxFile(file, { sheet: 2 })
     .then((rows) => {
       rows.shift();
