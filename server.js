@@ -1,8 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const multer = require("multer");
-const readXlsxFile = require("read-excel-file/node");
 
 const app = express();
 
@@ -15,8 +13,7 @@ app.use(
 
 // Setting up corsOptions
 var corsOptions = {
-  origin: "http://localhost:8081",
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:8081", "http://localhost:3000", "*"],
 };
 
 app.use(cors(corsOptions));
