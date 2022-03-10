@@ -15,9 +15,9 @@ app.use(
 
 // Setting up corsOptions
 var corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://localhost:8081",
 };
-app.enable("trust proxy");
+
 app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
