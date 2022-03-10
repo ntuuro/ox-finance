@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const multer = require("multer");
+const readXlsxFile = require("read-excel-file/node");
 
 const app = express();
 
@@ -12,13 +14,11 @@ app.use(
 );
 
 // Setting up corsOptions
-const corsOptions = {
-  origin: "*",
-  credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
+var corsOptions = {
+  origin: ["http://localhost:8081", "http://localhost:3000"],
 };
 
-app.use(cors(corsOptions)); // Use this after the variable declaration
+app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
 app.use(express.json());
