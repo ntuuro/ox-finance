@@ -55,6 +55,7 @@ const getInternalReport = (req, res) => {
 };
 
 const upload = async (req, res) => {
+  console.log(req.file);
   try {
     if (req.file == undefined) {
       return res.status(400).send("Please upload an excellent file!");

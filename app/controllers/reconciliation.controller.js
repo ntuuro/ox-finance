@@ -8,10 +8,10 @@ async function readExcelFile(file, depotId) {
   let data = [];
 
   try {
-    if (req.file == undefined) {
+    if (file == undefined) {
       return res.status(400).send("Please upload an excellent file!");
     }
-    let path = __basedir + "uploads/" + req.file.filename;
+    let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
         rows.shift();
@@ -47,10 +47,10 @@ async function readExcelFile(file, depotId) {
 // Read Data From Internal Database
 async function readInternalData(file) {
   try {
-    if (req.file == undefined) {
+    if (file == undefined) {
       return res.status(400).send("Please upload an excellent file!");
     }
-    let path = __basedir + "uploads/" + req.file.filename;
+    let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: 4 })
       .then((rows) => {
         rows.shift();
@@ -105,11 +105,8 @@ async function groupByYearAndMonth(data) {
 
 exports.reconciliationByYearMonth = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(
-      `${req.body.data}`,
-      `${req.body.depotId}`
-    );
-    const dataFromInternal = await readInternalData(`${req.body.data}`);
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
 
@@ -184,11 +181,8 @@ async function groupByReference(data) {
 
 exports.reconciliationByReference = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(
-      `${req.body.data}`,
-      `${req.body.depotId}`
-    );
-    const dataFromInternal = await readInternalData(`${req.body.data}`);
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
     let rawDataSum = 0;
@@ -222,10 +216,7 @@ exports.reconciliationByReference = async (req, res) => {
     let totalAmountUnpaid = 0;
     let dataUnpaid = [];
     dataFromInternal.forEach((element1) => {
-      if (
-        element1.id == null &&
-        element1.depotId == depots[`${req.body.depotId}`]
-      ) {
+      if (element1.id == null && element1.depotId == depots[req.body.depotId]) {
         totalAmountUnpaid += element1.unpaidAmount;
         dataUnpaid.push(element1);
       }
