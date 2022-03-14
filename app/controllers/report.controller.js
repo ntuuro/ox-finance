@@ -55,7 +55,6 @@ const getInternalReport = (req, res) => {
 };
 
 const upload = async (req, res) => {
-  console.log(__basedir);
   try {
     if (req.file == undefined) {
       return res.status(400).send("Please upload an excellent file!");

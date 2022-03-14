@@ -8,7 +8,11 @@ async function readExcelFile(file, depotId) {
   let data = [];
 
   try {
-    data = readXlsxFile(file, { sheet: parseInt(depotId) })
+    if (req.file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+    }
+    let path = __basedir + "uploads/" + req.file.filename;
+    data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
         rows.shift();
         let reconciliations = [];
@@ -43,7 +47,11 @@ async function readExcelFile(file, depotId) {
 // Read Data From Internal Database
 async function readInternalData(file) {
   try {
-    data = readXlsxFile(file, { sheet: 4 })
+    if (req.file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+    }
+    let path = __basedir + "uploads/" + req.file.filename;
+    data = readXlsxFile(path, { sheet: 4 })
       .then((rows) => {
         rows.shift();
         let reconciliations = [];

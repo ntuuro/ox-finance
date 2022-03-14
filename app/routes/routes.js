@@ -23,9 +23,17 @@ module.exports = (app) => {
 
   router.post("/upload", uploadFile.single("file"), upload);
 
-  router.post("/reconcialiation/by-year-month", reconciliationByYearMonth);
+  router.post(
+    "/reconcialiation/by-year-month",
+    uploadFile.single("file"),
+    reconciliationByYearMonth
+  );
 
-  router.post("/reconcialiation/by-reference", reconciliationByReference);
+  router.post(
+    "/reconcialiation/by-reference",
+    uploadFile.single("file"),
+    reconciliationByReference
+  );
 
   app.use("/v1/api/", router);
 };
