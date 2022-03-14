@@ -106,7 +106,7 @@ exports.reconciliationByYearMonth = async (req, res) => {
     let rawData = [];
 
     //   Loop from internal data to extract id where id is not null and is MoMo ref
-    dataFromInternal?.forEach((element) => {
+    dataFromInternal.forEach((element) => {
       // Split MoMoRef into array where we can have multiple MoMoRef
       const id = element.id ? element.id.toString().split(",") : "";
 

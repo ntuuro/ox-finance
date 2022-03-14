@@ -1,4 +1,5 @@
 const multer = require("multer");
+let root = require("path").resolve("./");
 const excelFilter = (req, file, cb) => {
   if (
     file.mimetype.includes("excel") ||
@@ -12,7 +13,7 @@ const excelFilter = (req, file, cb) => {
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, __basedir + "/uploads/");
+    cb(null, root + "/app/uploads/");
   },
   filename: (req, file, cb) => {
     console.log(file.originalname);
