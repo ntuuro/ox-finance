@@ -55,13 +55,12 @@ const getInternalReport = (req, res) => {
 };
 
 const upload = async (req, res) => {
-  let root = require("path").resolve("./");
-  console.log(req.file);
+  console.log(__basedir);
   try {
     if (req.file == undefined) {
       return res.status(400).send("Please upload an excellent file!");
     }
-    let path = root + "/uploads/" + req.file;
+    let path = __basedir + "/uploads/" + req.file;
 
     readXlsxFile(path, { sheet: 2 }).then((rows) => {
       rows.shift();
