@@ -20,6 +20,9 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Defing global directory
+global.__basedir = __dirname + "/..";
+
 // parse requests of content-type - application/json
 app.use(express.json());
 

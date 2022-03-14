@@ -60,7 +60,7 @@ const upload = async (req, res) => {
     if (req.file == undefined) {
       return res.status(400).send("Please upload an excellent file!");
     }
-    let path = __basedir + "/uploads/" + req.file;
+    let path = __basedir + "/resources/static/assets/uploads/" + req.file;
 
     readXlsxFile(path, { sheet: 2 }).then((rows) => {
       rows.shift();
