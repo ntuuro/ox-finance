@@ -185,6 +185,8 @@ exports.reconciliationByReference = async (req, res) => {
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
+    let sumWithMoreIds = 0;
+    let sumWithOneId = 0;
     let rawDataSum = 0;
 
     //   Loop from internal data to extract id where id is not null and is MoMo ref
@@ -203,7 +205,12 @@ exports.reconciliationByReference = async (req, res) => {
                 amount: element.amount,
                 date: element.date,
               });
-              rawDataSum += element.amount ? element.amount : 0;
+              if (element.id.length > 1) {
+                sumWithMoreIds += (element.amount ? element.amount : 0) / 2;
+              } else {
+                sumWithOneId += element.amount ? element.amount : 0;
+              }
+              rawDataSum = sumWithMoreIds + sumWithOneId;
             }
           });
         });
