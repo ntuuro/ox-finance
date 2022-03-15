@@ -8,6 +8,10 @@ async function readExcelFile(file, depotId) {
   let data = [];
 
   try {
+    if (file == undefined) {
+      // return res.status(400).send("Please upload an excellent file!");
+      console.log("Please upload an excellent file");
+    }
     let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
@@ -102,9 +106,6 @@ async function groupByYearAndMonth(data) {
 
 exports.reconciliationByYearMonth = async (req, res) => {
   try {
-    if (req.file == undefined) {
-      return res.status(400).send("Please upload an excellent file!");
-    }
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
@@ -181,9 +182,6 @@ async function groupByReference(data) {
 
 exports.reconciliationByReference = async (req, res) => {
   try {
-    if (req.file == undefined) {
-      return res.status(400).send("Please upload an excellent file!");
-    }
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
