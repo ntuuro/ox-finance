@@ -105,6 +105,9 @@ async function groupByYearAndMonth(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
+  if (req.file == undefined) {
+    return res.status(400).send("Please upload an excellent file!");
+  }
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
@@ -181,6 +184,9 @@ async function groupByReference(data) {
 }
 
 exports.reconciliationByReference = async (req, res) => {
+  if (req.file == undefined) {
+    return res.status(400).send("Please upload an excellent file!");
+  }
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
