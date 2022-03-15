@@ -184,11 +184,12 @@ async function groupByReference(data) {
 }
 
 exports.reconciliationByReference = async (req, res) => {
-  if (req.file == undefined) {
-    return res.status(400).send("Please upload an excellent file!");
-  }
+  console.log(req);
+  // if (req.file == undefined) {
+  //   return res.status(400).send("Please upload an excellent file!");
+  // }
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file, "2");
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
