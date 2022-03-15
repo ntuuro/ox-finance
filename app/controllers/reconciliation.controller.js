@@ -180,6 +180,7 @@ async function groupByReference(data) {
 }
 
 exports.reconciliationByReference = async (req, res) => {
+  console.log(res);
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
