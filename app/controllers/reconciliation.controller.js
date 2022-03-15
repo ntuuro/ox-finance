@@ -8,10 +8,10 @@ async function readExcelFile(file, depotId) {
   let data = [];
 
   try {
-    if (file == undefined) {
-      // return res.status(400).send("Please upload an excellent file!");
-      console.log("Please upload an excellent file");
-    }
+    // if (file == undefined) {
+    // return res.status(400).send("Please upload an excellent file!");
+    //   console.log("Please upload an excellent file");
+    // }
     let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
