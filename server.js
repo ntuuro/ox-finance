@@ -18,10 +18,7 @@ app.use(
 //   origin: "http://localhost:3000",
 //   optionsSuccessStatus: 200
 // };
-var whitelist = [
-  "http://localhost:3000",
-  "https://ox-finance-api.herokuapp.com/",
-];
+var whitelist = ["http://localhost:3000"];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
