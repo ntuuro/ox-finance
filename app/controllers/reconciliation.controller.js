@@ -4,13 +4,10 @@ const e = require("express");
 const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
 
 // Read Data From External Inputs
-async function readExcelFile(file, depotId, res) {
+async function readExcelFile(file, depotId) {
   let data = [];
 
   try {
-    if (file == undefined) {
-      return res.status(400).send("Please upload an excellent file!");
-    }
     let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
@@ -105,7 +102,10 @@ async function groupByYearAndMonth(data) {
 
 exports.reconciliationByYearMonth = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId, res);
+    if (file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+    }
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
@@ -180,8 +180,10 @@ async function groupByReference(data) {
 }
 
 exports.reconciliationByReference = async (req, res) => {
-  console.log(res);
   try {
+    if (file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+    }
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
