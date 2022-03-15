@@ -108,7 +108,7 @@ exports.reconciliationByYearMonth = async (req, res) => {
     return res.status(400).send("Please upload an excellent file!");
   }
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file, req.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
@@ -184,7 +184,7 @@ async function groupByReference(data) {
 
 exports.reconciliationByReference = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file, req.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
@@ -226,7 +226,7 @@ exports.reconciliationByReference = async (req, res) => {
     let totalAmountUnpaid = 0;
     let dataUnpaid = [];
     dataFromInternal.forEach((element1) => {
-      if (element1.id == null && element1.depotId == depots[req.body.depotId]) {
+      if (element1.id == null && element1.depotId == depots[req.depotId]) {
         totalAmountUnpaid += element1.unpaidAmount;
         dataUnpaid.push(element1);
       }
