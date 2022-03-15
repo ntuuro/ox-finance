@@ -4,7 +4,7 @@ const e = require("express");
 const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
 
 // Read Data From External Inputs
-async function readExcelFile(file, depotId) {
+async function readExcelFile(file, depotId, res) {
   let data = [];
 
   try {
@@ -105,7 +105,7 @@ async function groupByYearAndMonth(data) {
 
 exports.reconciliationByYearMonth = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId, res);
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
