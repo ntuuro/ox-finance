@@ -6,12 +6,11 @@ const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
 // Read Data From External Inputs
 async function readExcelFile(file, depotId) {
   let data = [];
-
   try {
-    // if (file == undefined) {
-    // return res.status(400).send("Please upload an excellent file!");
-    //   console.log("Please upload an excellent file");
-    // }
+    if (file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+      // console.log("Please upload an excellent file");
+    }
     let path = __basedir + "uploads/" + file.filename;
     data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
@@ -184,12 +183,8 @@ async function groupByReference(data) {
 }
 
 exports.reconciliationByReference = async (req, res) => {
-  // console.log(req);
-  if (req.file == undefined) {
-    return res.status(400).send("Please upload an excellent file!");
-  }
   try {
-    const dataFromExcel = await readExcelFile(req.file, "2");
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
