@@ -1,12 +1,18 @@
 const readXlsxFile = require("read-excel-file/node");
 const axios = require("axios");
+const e = require("express");
+const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
 
 // Read Data From External Inputs
-async function readExcelFile(file) {
+async function readExcelFile(file, depotId) {
   let data = [];
-
   try {
-    data = readXlsxFile(file, { sheet: 2 })
+    if (file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+      // console.log("Please upload an excellent file");
+    }
+    let path = __basedir + "uploads/" + file.filename;
+    data = readXlsxFile(path, { sheet: parseInt(depotId) })
       .then((rows) => {
         rows.shift();
         let reconciliations = [];
@@ -41,7 +47,11 @@ async function readExcelFile(file) {
 // Read Data From Internal Database
 async function readInternalData(file) {
   try {
-    data = readXlsxFile(file, { sheet: 4 })
+    if (file == undefined) {
+      return res.status(400).send("Please upload an excellent file!");
+    }
+    let path = __basedir + "uploads/" + file.filename;
+    data = readXlsxFile(path, { sheet: 4 })
       .then((rows) => {
         rows.shift();
         let reconciliations = [];
@@ -51,6 +61,8 @@ async function readInternalData(file) {
             date: row[0],
             names: row[2],
             amount: row[4],
+            unpaidAmount: row[5],
+            depotId: row[1],
           };
           reconciliations.push(reconciliation);
         });
@@ -92,9 +104,12 @@ async function groupByYearAndMonth(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
+  if (req.file == undefined) {
+    return res.status(400).send("Please upload an excellent file!");
+  }
   try {
-    const dataFromExcel = await readExcelFile(`${req.body.data}`);
-    const dataFromInternal = await readInternalData(`${req.body.data}`);
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
 
@@ -169,10 +184,13 @@ async function groupByReference(data) {
 
 exports.reconciliationByReference = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(`${req.body.data}`);
-    const dataFromInternal = await readInternalData(`${req.body.data}`);
+    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromInternal = await readInternalData(req.file);
 
     let rawData = [];
+    let sumWithMoreIds = 0;
+    let sumWithOneId = 0;
+    let rawDataSum = 0;
 
     //   Loop from internal data to extract id where id is not null and is MoMo ref
     dataFromInternal.forEach((element) => {
@@ -190,14 +208,53 @@ exports.reconciliationByReference = async (req, res) => {
                 amount: element.amount,
                 date: element.date,
               });
+              if (element.id.length > 1) {
+                sumWithMoreIds += (element.amount ? element.amount : 0) / 2;
+              } else {
+                sumWithOneId += element.amount ? element.amount : 0;
+              }
+              rawDataSum = sumWithMoreIds + sumWithOneId;
             }
           });
         });
       }
     });
 
+    var idsInternal = [];
+    // Data from external not reflected in internal
+    // Data frm internal without momo reference
+    let totalAmountUnpaid = 0;
+    let dataUnpaid = [];
+    dataFromInternal.forEach((element1) => {
+      if (element1.id == null && element1.depotId == depots[req.body.depotId]) {
+        totalAmountUnpaid += element1.unpaidAmount;
+        dataUnpaid.push(element1);
+      }
+      // Split MoMoRef into array where we can have multiple MoMoRef
+      const id = element1.id ? element1.id.toString().split(",") : "";
+      if (id) {
+        id.forEach((element) => {
+          idsInternal.push(parseInt(element));
+        });
+      }
+    });
+
+    // Data from External that doesn't reflect in internal
+    let totalAmountPaid = 0;
+    let dataPaid = [];
+    let totalAmountUnrecorded = 0;
+    let dataUnrecorded = [];
+    dataFromExcel.forEach((element) => {
+      totalAmountPaid += element.amount;
+      dataPaid.push(element);
+      if (!idsInternal.includes(element.id)) {
+        totalAmountUnrecorded += element.amount;
+        dataUnrecorded.push(element);
+      }
+    });
+
     const groupedData = await groupByReference(rawData);
-    let result = [];
+    let rawResult = [];
 
     groupedData.forEach((element) => {
       let referenceId = null;
@@ -216,18 +273,23 @@ exports.reconciliationByReference = async (req, res) => {
           "0"
         )}-${DD.toString().padStart(2, "0")}`;
         clientName = data.names;
-        totalAmountPerReferenceId += data.amount;
-      });
+        totalAmountPerReferenceId = data.amount;
 
-      result.push({
-        reference_id: referenceId,
-        date: orderDate,
-        client: clientName,
-        amount: totalAmountPerReferenceId.toLocaleString() + " Rwf",
+        rawResult.push({
+          reference_id: referenceId,
+          date: orderDate,
+          client: clientName,
+          amount: totalAmountPerReferenceId.toLocaleString() + " Rwf",
+        });
       });
     });
 
-    return res.json(result);
+    return res.json({
+      raw_result: { sum: rawDataSum, data: rawResult },
+      unpaid_result: { sum: totalAmountUnpaid, data: dataUnpaid },
+      paid_result: { sum: totalAmountPaid, data: dataPaid },
+      unrecorded_result: { sum: totalAmountUnrecorded, data: dataUnrecorded },
+    });
   } catch (error) {
     throw error;
   }

@@ -15,10 +15,13 @@ app.use(
 
 // Setting up corsOptions
 var corsOptions = {
-  origin: "http://localhost:8081",
+  origin: "http://localhost:3000",
 };
 
 app.use(cors(corsOptions));
+
+// Defing global directory
+global.__basedir = __dirname + "/";
 
 // parse requests of content-type - application/json
 app.use(express.json());
