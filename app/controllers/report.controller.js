@@ -37,17 +37,30 @@ const getInternalReport = (req, res) => {
   axios
     .get("https://dev-api.ox.rw/api/v1/reports/json/revenue", {
       params: {
-        startDate: "2020-02-28",
-        endDate: "2022-02-28",
+        startDate: "2020-01-01",
+        endDate: "2022-03-31",
         scope: "REVENUE",
       },
     })
-    .then((response) => {
-      console.log(response.data.payload);
-      res.status(201).send({
-        payload: response.data.payload,
-        message: response.data.message,
+    .then((res) => {
+      let payload = res.data.payload;
+      let reconciliations = [];
+      payload.forEach((row) => {
+        let reconciliation = {
+          id: row.momoRefCode,
+          date: row.orderDate,
+          paidDate: row.paidDate,
+          names: row.clientNames,
+          amount: row.amount,
+          depotId: row.depot,
+          orderId: row.orderId,
+          transactionId: row.transactionId,
+        };
+        if (reconciliation.depotId == "Tyazo Depot") {
+          reconciliations.push(reconciliation);
+        }
       });
+      console.log(reconciliations);
     })
     .catch((error) => {
       console.log(error);
