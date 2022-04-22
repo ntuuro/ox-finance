@@ -46,13 +46,13 @@ async function readExcelFile(file, depotId) {
 }
 
 // Read Data From Internal Database
-async function readInternalData() {
+async function readInternalData(startDate, endDate, scope) {
   try {
     let data = axios.get("https://dev-api.ox.rw/api/v1/reports/json/revenue", {
       params: {
-        startDate: "2020-03-01",
-        endDate: "2022-03-31",
-        scope: "REVENUE",
+        startDate: startDate,
+        endDate: endDate,
+        scope: scope,
       },
     });
     let result = data.then((res) => {
@@ -128,7 +128,11 @@ exports.reconciliationByYearMonth = async (req, res) => {
   }
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
-    const dataFromInternal = await readInternalData();
+    const dataFromInternal = await readInternalData(
+      req.body.startDate,
+      req.body.endDate,
+      req.body.scope
+    );
 
     let groupedFieldData = groupByField(dataFromInternal, "orderId");
 
@@ -166,7 +170,6 @@ exports.reconciliationByYearMonth = async (req, res) => {
       let externalSum = 0;
       dataFromExcel.forEach((element1) => {
         if (element.referenceId.includes(element1.id.toString())) {
-          console.log(element1.id);
           externalSum += element1.amount;
         }
       });
