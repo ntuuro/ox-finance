@@ -5,14 +5,32 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js" 
+    "start": "node server.js",
+    "babel-version": "babel --version",
+    "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix",
+    "build": "babel -d ./build ./server.js -s"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/eslint-plugin": "^7.17.7",
+    "@babel/node": "^7.7.4",
+    "@babel/plugin-transform-async-to-generator": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "@babel/preset-env": "^7.7.6",
+    "@babel/register": "^7.7.4",
+    "babel-plugin-transform-runtime": "^6.23.0"
+  },
   "dependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "@babel/runtime": "^7.7.6",
     "axios": "^0.26.0",
     "cors": "^2.8.5",
+    "eslint-friendly-formatter": "^4.0.1",
     "express": "^4.17.3",
     "multer": "^1.4.4",
     "pg": "^8.7.3",
