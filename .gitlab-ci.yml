@@ -34,7 +34,7 @@ Build_the_project:
   image: $NODE_IMAGE_VERSION
   script:
     - npm
-    - npm build
+    - npm run build
   artifacts:
     paths:
       - node_modules/
@@ -47,7 +47,7 @@ eslint:
   image: $NODE_IMAGE_VERSION
   script:
     - npm
-    - npm lint
+    - npm run lint
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
 
