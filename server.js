@@ -13,11 +13,7 @@ app.use(
 
 // Setting up corsOptions
 var corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://dev-api.ox.rw/api",
-    "https://dev-finance-api.ox.rw/",
-  ],
+  origin: ["http://localhost:3000", "https://dev-api.ox.rw/api"],
 };
 
 app.use(cors(corsOptions));
