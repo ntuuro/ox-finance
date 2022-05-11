@@ -97,8 +97,8 @@ deploy_to_dev_environment:
       cd $BASE_DEV_SERVER_PATH &&
       docker image rm -f $BASE_TAG_NAME:latest &&
       docker pull $BASE_TAG_NAME:latest &&
-      docker-compose -f dev.docker-compose.yml -p  $DEV_PROJECT_NAME down -v &&
-      docker-compose -f dev.docker-compose.yml -p  $DEV_PROJECT_NAME up -d"
+      docker-compose -f docker-compose.yml -p  $DEV_PROJECT_NAME down -v &&
+      docker-compose -f docker-compose.yml -p  $DEV_PROJECT_NAME up -d"
   environment:
     name: development
     url: https://finance-api.ox.rw
