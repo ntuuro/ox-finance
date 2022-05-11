@@ -33,7 +33,7 @@ Build_the_project:
   #Specify which image to be considered during build time
   image: $NODE_IMAGE_VERSION
   script:
-    - npm
+    - npm i
     - npm run build
   artifacts:
     paths:
@@ -46,7 +46,7 @@ eslint:
   stage: check
   image: $NODE_IMAGE_VERSION
   script:
-    - npm
+    - npm i
     - npm run lint
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
