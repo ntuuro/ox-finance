@@ -2,10 +2,10 @@ version: '3.7'
 
 services:
   ox-finance-api-dev:
-    # image: registry.gitlab.com/oxdelivery/ox-finance-api/dev:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registry.gitlab.com/oxdelivery/ox-finance-api/dev:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: ox-finance-api-dev
     ports:
       - 8018:8080
