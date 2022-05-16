@@ -123,6 +123,7 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
+  console.log(req);
   if (req.file == undefined) {
     return res.status(400).send("Please upload an excellent file!");
   }
