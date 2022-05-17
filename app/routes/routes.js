@@ -24,13 +24,13 @@ module.exports = (app) => {
   router.post("/upload", uploadFile.single("file"), upload);
 
   router.post(
-    "/reconcialiation/by-year-month",
+    "/reconciliation/by-year-month",
     uploadFile.single("file"),
     reconciliationByYearMonth
   );
 
   router.post(
-    "/reconcialiation/by-reference",
+    "/reconciliation/by-reference",
     uploadFile.single("file"),
     reconciliationByReference
   );
