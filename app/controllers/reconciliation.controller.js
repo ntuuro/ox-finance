@@ -55,9 +55,6 @@ async function readInternalData(startDate, endDate, scope) {
         scope: scope,
       },
     });
-    // let data = axios.get(
-    //   "https://dev-api.ox.rw/api/v1/reports/json/revenue?startDate=2022-02-01&endDate=2022-02-28&scope=REVENUE"
-    // );
     let result = data.then((res) => {
       let payload = res.data.payload;
       let reconciliations = [];
