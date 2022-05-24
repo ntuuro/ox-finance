@@ -75,7 +75,8 @@ async function readInternalData(startDate, endDate, scope) {
     });
     return result;
   } catch (error) {
-    throw error;
+    // throw error;
+    console.log(error.response.data);
   }
 }
 
@@ -123,7 +124,6 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
-  console.log(req.file);
   if (req.file == undefined) {
     return res.status(400).send("Please upload an excellent file!");
   }
