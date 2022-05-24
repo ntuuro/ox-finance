@@ -50,12 +50,9 @@ async function readInternalData(startDate, endDate, scope) {
   try {
     let data = axios.get("https://dev-api.ox.rw/api/v1/reports/json/revenue", {
       params: {
-        // startDate: startDate,
-        // endDate: endDate,
+        startDate: startDate,
+        endDate: endDate,
         scope: scope,
-        startDate: "2021-01-01",
-        endDate: "2022-02-28",
-        // scope: "REVENUE",
       },
     });
     let result = data.then((res) => {
@@ -126,7 +123,7 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
-  console.log(req);
+  console.log(req.body);
   if (req.file == undefined) {
     return res.status(400).send("Please upload an excellent file!");
   }
