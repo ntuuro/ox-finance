@@ -75,7 +75,8 @@ async function readInternalData(startDate, endDate, scope) {
     });
     return result;
   } catch (error) {
-    throw error;
+    // throw error;
+    console.log(error.response.data);
   }
 }
 
