@@ -13,7 +13,8 @@ app.use(
 
 // Setting up corsOptions
 var corsOptions = {
-  origin: "http://localhost:3000/",
+  origin: ["http://localhost:3000", "https://dev-finance.ox.rw"],
+  // origin: "http://localhost:3000/",
   // origin: "https://dev-finance.ox.rw",
 };
 
