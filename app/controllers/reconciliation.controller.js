@@ -237,7 +237,11 @@ async function groupByReference(data) {
 exports.reconciliationByReference = async (req, res) => {
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
-    const dataFromInternal = await readInternalData(req.file);
+    const dataFromInternal = await readInternalData(
+      req.body.startDate,
+      req.body.endDate,
+      req.body.scope
+    );
 
     let rawData = [];
     let rawDataSum = 0;
