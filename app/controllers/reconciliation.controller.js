@@ -48,7 +48,7 @@ async function readExcelFile(file, depotId) {
 // Read Data From Internal Database
 async function readInternalData(startDate, endDate, scope) {
   try {
-    let data = axios.get("https://dev-api.ox.rw/api/v1/reports/json/revenue", {
+    let data = axios.get("https://api.ox.rw/api/v1/reports/json/revenue", {
       params: {
         startDate: startDate,
         endDate: endDate,
