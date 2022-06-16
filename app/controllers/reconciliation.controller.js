@@ -124,9 +124,6 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
-  if (req.file == undefined) {
-    return res.status(400).send("Please upload an excellent file!");
-  }
   try {
     const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
     const dataFromInternal = await readInternalData(
@@ -135,79 +132,91 @@ exports.reconciliationByYearMonth = async (req, res) => {
       req.body.scope
     );
 
-    let groupedFieldData = groupByField(dataFromInternal, "orderId");
+    let rawData = [];
+    let rawDataSum = 0;
+    let idsFromInternal = [];
 
-    const resultsValuesFromInternal = Object.values(groupedFieldData);
+    //   Loop from internal data to extract id where id is not null and is MoMo ref
+    dataFromInternal.forEach((element) => {
+      // Split MoMoRef into array where we can have multiple MoMoRef
+      const id = element.id ? element.id.toString().split(",") : "";
+      if (id != "") {
+        id.forEach((data) => {
+          // if (!idsFromInternal.map((u) => u.id).includes(data.trim())) {
+          idsFromInternal.push({
+            id: data.trim(),
+            date: element.date,
+            transactionId: element.transactionId,
+            iAmount: element.amount,
+          });
+          // }
+        });
+      }
+    });
 
-    let totalSums = [];
-    for (let index = 0; index < resultsValuesFromInternal.length; index++) {
-      const element = resultsValuesFromInternal[index];
-
-      let sum = 0;
-      let referenceId = [];
-      let id = null;
-      let date = null;
-      let depot = null;
-      let names = null;
-      element.forEach((element1) => {
-        if (element1.id != null) {
-          id = element1.orderId;
-          referenceId.push(element1.id);
-          sum += element1.amount;
-          date = element1.date;
-          depot = element1.depotId;
-          names = element1.names;
+    // if MoMoRef is available, check similarity to external data
+    idsFromInternal.forEach((element) => {
+      dataFromExcel.find((data) => {
+        if (element.id == data.id) {
+          rawData.push({
+            id: element.id,
+            // amount: data.amount,
+            date: element.date,
+            names: data.names,
+            transactionId: element.transactionId,
+            iAmount: element.iAmount,
+          });
+          rawDataSum += element.iAmount ? element.iAmount : 0;
         }
       });
-      if (depot == depots[req.body.depotId]) {
-        totalSums.push({ id, sum, date, depot, names, referenceId });
+    });
+
+    const groupedData = await groupByYearAndMonth(rawData);
+    let rawResult = [];
+
+    for (let i = 0; i < groupedData.length; i++) {
+      let tempTotal = 0;
+      for (let j = 0; j < groupedData[i].length; j++) {
+        tempTotal += groupedData[i][j].iAmount;
       }
+      rawResult.push({
+        totalAmount: tempTotal,
+        data: groupedData[i],
+      });
     }
+    // console.log(groupedData);
+    // groupedData.forEach((element) => {
+    //
 
-    let mismatched = [];
-    let matched = [];
+    // let referenceId = null;
+    // let orderDate = null;
+    // let clientName = null;
+    // let totalAmountPerReferenceId = 0;
 
-    totalSums.forEach((element) => {
-      let externalSum = 0;
-      dataFromExcel.forEach((element1) => {
-        if (element.referenceId.includes(element1.id.toString())) {
-          externalSum += element1.amount;
-        }
-      });
-      if (element.sum == externalSum) {
-        matched.push(element);
-      } else {
-        mismatched.push(element);
-      }
-    });
+    // element.forEach((data) => {
+    //   var YYYY = new Date(data.date).getFullYear();
+    //   var MM = new Date(data.date).getMonth() + 1;
+    //   var DD = new Date(data.date).getDate();
 
-    //   Group data by Year and Month
-    const groupedData = await groupByYearAndMonth(matched);
-    let result = [];
+    //   referenceId = data.id;
+    //   orderDate = `${YYYY}-${MM.toString().padStart(
+    //     2,
+    //     "0"
+    //   )}-${DD.toString().padStart(2, "0")}`;
+    //   clientName = data.names;
+    //   totalAmountPerReferenceId = data.amount;
 
-    groupedData.forEach((element) => {
-      let date = null;
-      let totalAmountByMonth = 0;
-
-      element.forEach((data) => {
-        // console.log(data);
-        var YYYY = new Date(data.date).getFullYear();
-        var MM = new Date(data.date).getMonth() + 1;
-
-        date = `${YYYY}-${MM.toString().padStart(2, "0")}`;
-        totalAmountByMonth += data.sum;
-      });
-
-      result.push({
-        date,
-        amount: totalAmountByMonth.toLocaleString() + " Rwf",
-      });
-    });
+    //   rawResult.push({
+    //     reference_id: referenceId,
+    //     date: orderDate,
+    //     client: clientName,
+    //     amount: totalAmountPerReferenceId.toLocaleString() + " Rwf",
+    //   });
+    // });
+    // });
 
     return res.json({
-      result: result,
-      matchedData: groupedData,
-      mismatchedData: mismatched,
+      rawResult,
     });
   } catch (error) {
     throw error;
@@ -285,7 +294,7 @@ exports.reconciliationByReference = async (req, res) => {
     let dataUnpaid = [];
     dataFromInternal.forEach((element1) => {
       if (element1.id != null && element1.depotId == depots[req.body.depotId]) {
-        totalAmountUnpaid += element1.unpaidAmount;
+        totalAmountUnpaid += element1.amount;
         dataUnpaid.push(element1);
       }
       // Split MoMoRef into array where we can have multiple MoMoRef
