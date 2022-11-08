@@ -1,10 +1,10 @@
 const readXlsxFile = require("read-excel-file/node");
 const axios = require("axios");
 const e = require("express");
-const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
+// const depots = { 2: "Tyazo Depot", 3: "Kayove Depot", 4: "LHS" };
 
 // Read Data From External Inputs
-async function readExcelFile(file, depotId) {
+async function readExcelFile(file) {
   let data = [];
   try {
     if (file == undefined) {
@@ -13,7 +13,7 @@ async function readExcelFile(file, depotId) {
       // console.log("Please upload an excellent file");
     }
     let path = __basedir + "uploads/" + file.filename;
-    data = readXlsxFile(path, { sheet: parseInt(depotId) })
+    data = readXlsxFile(path, { sheet: 6 })
       .then((rows) => {
         rows.shift();
         let reconciliations = [];
@@ -30,7 +30,7 @@ async function readExcelFile(file, depotId) {
           reconciliations.push(reconciliation);
         });
         const filteredExternalData = reconciliations.filter(
-          (recon) => recon.type?.toLowerCase() == "payment"
+          (recon) => recon.type?.toLowerCase() == "debit"
         );
 
         return filteredExternalData;
@@ -125,7 +125,7 @@ function groupById(data) {
 
 exports.reconciliationByYearMonth = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
       req.body.startDate,
       req.body.endDate,
@@ -245,7 +245,7 @@ async function groupByReference(data) {
 
 exports.reconciliationByReference = async (req, res) => {
   try {
-    const dataFromExcel = await readExcelFile(req.file, req.body.depotId);
+    const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
       req.body.startDate,
       req.body.endDate,
@@ -293,7 +293,7 @@ exports.reconciliationByReference = async (req, res) => {
     let totalAmountUnpaid = 0;
     let dataUnpaid = [];
     dataFromInternal.forEach((element1) => {
-      if (element1.id != null && element1.depotId == depots[req.body.depotId]) {
+      if (element1.id != null) {
         totalAmountUnpaid += element1.amount;
         dataUnpaid.push(element1);
       }
