@@ -9,6 +9,7 @@ const {
 const {
   reconciliationByYearMonth,
   reconciliationByReference,
+  reconciliationByDateRange,
 } = require("../controllers/reconciliation.controller");
 
 const uploadFile = require("../middlewares/upload");
@@ -33,6 +34,12 @@ module.exports = (app) => {
     "/reconciliation/by-reference",
     uploadFile.single("file"),
     reconciliationByReference
+  );
+
+  router.post(
+    "/reconciliation/by-date-range",
+    uploadFile.single("file"),
+    reconciliationByDateRange
   );
 
   app.use("/v1/api/", router);
