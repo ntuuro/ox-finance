@@ -124,6 +124,7 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
+  console.log(req);
   try {
     const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
@@ -356,6 +357,81 @@ exports.reconciliationByReference = async (req, res) => {
       unpaid_result: { sum: totalAmountUnpaid, data: dataUnpaid },
       paid_result: { sum: totalAmountPaid, data: dataPaid },
       unrecorded_result: { sum: totalAmountUnrecorded, data: dataUnrecorded },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+// Method to groupBy date raneg
+exports.reconciliationByDateRange = async (req, res) => {
+  console.log(req);
+  return;
+  try {
+    const dataFromExcel = await readExcelFile(req.file);
+    const dataFromInternal = await readInternalData(
+      req.body.startDate,
+      req.body.endDate,
+      req.body.scope
+    );
+
+    let rawData = [];
+    let rawDataSum = 0;
+    let idsFromInternal = [];
+
+    //   Loop from internal data to extract id where id is not null and is MoMo ref
+    dataFromInternal.forEach((element) => {
+      // Split MoMoRef into array where we can have multiple MoMoRef
+      const id = element.id ? element.id.toString().split(",") : "";
+      if (id != "") {
+        if (
+          element.date >= req.body.startDate &&
+          element.date <= req.body.endDate
+        ) {
+          id.forEach((data) => {
+            // if (!idsFromInternal.map((u) => u.id).includes(data.trim())) {
+            idsFromInternal.push({
+              id: data.trim(),
+              date: element.date,
+              transactionId: element.transactionId,
+              iAmount: element.amount,
+            });
+            // }
+          });
+        }
+      }
+    });
+    // if MoMoRef is available, check similarity to external data
+    idsFromInternal.forEach((element) => {
+      dataFromExcel.find((data) => {
+        if (element.id == data.id) {
+          rawData.push({
+            id: element.id,
+            // amount: data.amount,
+            date: element.date,
+            names: data.names,
+            transactionId: element.transactionId,
+            iAmount: element.iAmount,
+          });
+          rawDataSum += element.iAmount ? element.iAmount : 0;
+        }
+      });
+    });
+
+    const groupedData = await groupByYearAndMonth(rawData);
+    let rawResultDateRange = [];
+
+    for (let i = 0; i < groupedData.length; i++) {
+      let tempTotal = 0;
+      for (let j = 0; j < groupedData[i].length; j++) {
+        tempTotal += groupedData[i][j].iAmount;
+      }
+      rawResultDateRange.push({
+        totalAmount: tempTotal,
+        data: groupedData[i],
+      });
+    }
+    return res.json({
+      rawResultDateRange,
     });
   } catch (error) {
     throw error;
