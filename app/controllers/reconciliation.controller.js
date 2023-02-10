@@ -124,7 +124,6 @@ function groupById(data) {
 }
 
 exports.reconciliationByYearMonth = async (req, res) => {
-  console.log(req);
   try {
     const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
@@ -364,8 +363,6 @@ exports.reconciliationByReference = async (req, res) => {
 };
 // Method to groupBy date raneg
 exports.reconciliationByDateRange = async (req, res) => {
-  console.log(req);
-  return;
   try {
     const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
@@ -378,11 +375,13 @@ exports.reconciliationByDateRange = async (req, res) => {
     let rawDataSum = 0;
     let idsFromInternal = [];
 
+    // for (let index = 0; index < req.body.startDate.length; index++) {
     //   Loop from internal data to extract id where id is not null and is MoMo ref
     dataFromInternal.forEach((element) => {
       // Split MoMoRef into array where we can have multiple MoMoRef
       const id = element.id ? element.id.toString().split(",") : "";
       if (id != "") {
+        console.log(element.date);
         if (
           element.date >= req.body.startDate &&
           element.date <= req.body.endDate
@@ -400,6 +399,7 @@ exports.reconciliationByDateRange = async (req, res) => {
         }
       }
     });
+    // }
     // if MoMoRef is available, check similarity to external data
     idsFromInternal.forEach((element) => {
       dataFromExcel.find((data) => {
