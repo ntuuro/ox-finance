@@ -104,6 +104,30 @@ async function groupByYearAndMonth(data) {
   }
 }
 
+// Do Not Touch: Group Raw Data By Year And Month
+async function groupByDates(data, arr) {
+  try {
+    var ref = {};
+    var res = data.reduce(function (arr, o) {
+      var YYYY = new Date(o.date).getFullYear();
+      var MM = new Date(o.date).getMonth() + 1;
+
+      let date = `${YYYY}-${MM.toString().padStart(2, "0")}`;
+      if (!(date in ref)) {
+        ref[date] = arr.length;
+        arr.push([]);
+      }
+      arr[ref[date]].push(o);
+
+      return arr;
+    }, []);
+
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
+
 function groupByField(data, field) {
   try {
     return data.reduce((rv, x) => {
@@ -363,11 +387,13 @@ exports.reconciliationByReference = async (req, res) => {
 };
 // Method to groupBy date raneg
 exports.reconciliationByDateRange = async (req, res) => {
+  let firstStartDate = req.body.startDate[0];
+  let lastEndDate = req.body.endDate[req.body.endDate.length - 1];
   try {
     const dataFromExcel = await readExcelFile(req.file);
     const dataFromInternal = await readInternalData(
-      req.body.startDate,
-      req.body.endDate,
+      firstStartDate,
+      lastEndDate,
       req.body.scope
     );
 
@@ -381,11 +407,7 @@ exports.reconciliationByDateRange = async (req, res) => {
       // Split MoMoRef into array where we can have multiple MoMoRef
       const id = element.id ? element.id.toString().split(",") : "";
       if (id != "") {
-        console.log(element.date);
-        if (
-          element.date >= req.body.startDate &&
-          element.date <= req.body.endDate
-        ) {
+        if (element.date >= firstStartDate && element.date <= lastEndDate) {
           id.forEach((data) => {
             // if (!idsFromInternal.map((u) => u.id).includes(data.trim())) {
             idsFromInternal.push({
@@ -415,6 +437,26 @@ exports.reconciliationByDateRange = async (req, res) => {
           rawDataSum += element.iAmount ? element.iAmount : 0;
         }
       });
+    });
+    const datesMap = new Map();
+
+    for (let i = 0; i < req.body.startDate.length; i++) {
+      const thisstdate = req.body.startDate[i];
+      const thisenddate = req.body.endDate[i];
+
+      const thisRawData = rawData.filter(
+        (r) =>
+          new Date(r.date) > new Date(thisstdate) &&
+          new Date(r.date) < new Date(thisenddate)
+      );
+      datesMap.set(`${thisstdate}-${thisenddate}`, thisRawData);
+    }
+    console.log(datesMap);
+    return;
+    return res.json({
+      dataFromExcel,
+      idsFromInternal,
+      rawData,
     });
 
     const groupedData = await groupByYearAndMonth(rawData);
