@@ -401,7 +401,6 @@ exports.reconciliationByDateRange = async (req, res) => {
     let rawDataSum = 0;
     let idsFromInternal = [];
 
-    // for (let index = 0; index < req.body.startDate.length; index++) {
     //   Loop from internal data to extract id where id is not null and is MoMo ref
     dataFromInternal.forEach((element) => {
       // Split MoMoRef into array where we can have multiple MoMoRef
@@ -409,19 +408,17 @@ exports.reconciliationByDateRange = async (req, res) => {
       if (id != "") {
         if (element.date >= firstStartDate && element.date <= lastEndDate) {
           id.forEach((data) => {
-            // if (!idsFromInternal.map((u) => u.id).includes(data.trim())) {
             idsFromInternal.push({
               id: data.trim(),
               date: element.date,
               transactionId: element.transactionId,
               iAmount: element.amount,
             });
-            // }
           });
         }
       }
     });
-    // }
+
     // if MoMoRef is available, check similarity to external data
     idsFromInternal.forEach((element) => {
       dataFromExcel.find((data) => {
@@ -438,42 +435,30 @@ exports.reconciliationByDateRange = async (req, res) => {
         }
       });
     });
-    const datesMap = new Map();
+
+    const periodicData = [];
 
     for (let i = 0; i < req.body.startDate.length; i++) {
       const thisstdate = req.body.startDate[i];
       const thisenddate = req.body.endDate[i];
-
       const thisRawData = rawData.filter(
         (r) =>
           new Date(r.date) > new Date(thisstdate) &&
           new Date(r.date) < new Date(thisenddate)
       );
-      datesMap.set(`${thisstdate}-${thisenddate}`, thisRawData);
-    }
-    console.log(datesMap);
-    return;
-    return res.json({
-      dataFromExcel,
-      idsFromInternal,
-      rawData,
-    });
+      const periodicSum = thisRawData.reduce(
+        (acc, curr) => acc + curr.iAmount,
+        0
+      );
 
-    const groupedData = await groupByYearAndMonth(rawData);
-    let rawResultDateRange = [];
-
-    for (let i = 0; i < groupedData.length; i++) {
-      let tempTotal = 0;
-      for (let j = 0; j < groupedData[i].length; j++) {
-        tempTotal += groupedData[i][j].iAmount;
-      }
-      rawResultDateRange.push({
-        totalAmount: tempTotal,
-        data: groupedData[i],
+      periodicData.push({
+        dateRange: `[${thisstdate}] - [${thisenddate}]`,
+        periodicSum: periodicSum,
+        rawData: thisRawData,
       });
     }
     return res.json({
-      rawResultDateRange,
+      periodicData,
     });
   } catch (error) {
     throw error;
